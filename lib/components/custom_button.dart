@@ -19,11 +19,6 @@ class CustomButton extends StatelessWidget {
       height: 50,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
         child: isLoading
             ? const SizedBox(
                 width: 24,
@@ -33,13 +28,7 @@ class CustomButton extends StatelessWidget {
                   strokeWidth: 2,
                 ),
               )
-            : Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            : Text(text),
       ),
     );
   }
