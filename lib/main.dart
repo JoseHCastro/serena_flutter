@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
 void main() {
-  runApp(const SerenaApp());
+  runApp(const ProviderScope(child: SerenaApp()));
 }
 
-class SerenaApp extends StatelessWidget {
+class SerenaApp extends ConsumerWidget {
   const SerenaApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+    return MaterialApp.router(
       title: 'Serena',
       theme: AppTheme.lightTheme,
-      home: const LoginScreen(),
+      routerConfig: router,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

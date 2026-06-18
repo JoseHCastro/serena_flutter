@@ -1,47 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../components/custom_button.dart';
 import '../components/custom_text_field.dart';
-import '../services/auth_service.dart';
+import '../providers/auth_provider.dart';
+import '../theme/app_theme.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final AuthService _authService = AuthService();
-  bool _isLoading = false;
-
-  void _handleLogin() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final user = await _authService.login(
-      _emailController.text,
-      _passwordController.text,
-    );
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (!mounted) return;
-
-    if (user != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Welcome ${user.name}!')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login failed. Please check credentials.')),
-      );
-    }
-  }
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -50,53 +23,84 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  Future<void> _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingresa tu correo y contraseña')),
+      );
+      return;
+    }
+
+    await ref.read(authProvider.notifier).login(email, password);
+
+    if (!mounted) return;
+    final authState = ref.read(authProvider);
+    if (authState.hasError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Credenciales incorrectas. Verifica e intenta de nuevo.'),
+          backgroundColor: AppTheme.errorColor,
+        ),
+      );
+    }
+    // GoRouter redirect handles navigation on success
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(authProvider).isLoading;
+
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(AppTheme.spacingXl),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(
-                  Icons.lock_outline,
-                  size: 100,
-                  color: Theme.of(context).colorScheme.primary,
+                const Icon(
+                  Icons.psychology_outlined,
+                  size: 80,
+                  color: AppTheme.primaryColor,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppTheme.spacingLg),
                 Text(
-                  'Welcome Back',
+                  'Serena',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppTheme.spacingSm),
                 Text(
-                  'Sign in to continue',
+                  'Portal del Terapeuta',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                  ),
+                        color: AppTheme.textMuted,
+                      ),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: AppTheme.spacingXl * 1.5),
                 CustomTextField(
                   controller: _emailController,
-                  hintText: 'Email',
+                  hintText: 'Correo electrónico',
                   prefixIcon: Icons.email_outlined,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacingMd),
                 CustomTextField(
                   controller: _passwordController,
-                  hintText: 'Password',
+                  hintText: 'Contraseña',
                   prefixIcon: Icons.lock_outline,
                   obscureText: true,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppTheme.spacingLg),
                 CustomButton(
-                  text: 'Login',
-                  isLoading: _isLoading,
+                  text: 'Iniciar sesión',
+                  isLoading: isLoading,
                   onPressed: _handleLogin,
                 ),
               ],
