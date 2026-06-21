@@ -6,6 +6,7 @@ plugins {
 }
 
 android {
+    ndkVersion = "25.1.8937393"
     namespace = "com.example.serena_flutter"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion

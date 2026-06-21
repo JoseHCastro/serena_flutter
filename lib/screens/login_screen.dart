@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../components/custom_button.dart';
@@ -13,8 +14,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: 'dr.martinez@serena.com');
+  final _passwordController = TextEditingController(text: 'Terapeuta2!');
 
   @override
   void dispose() {
@@ -23,7 +24,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
+  String _errorMessage(Object error) {
+    if (error is DioException) {
+      final statusCode = error.response?.statusCode;
+      if (statusCode == 401) return 'Correo o contraseña incorrectos.';
+      if (error.type == DioExceptionType.connectionError ||
+          error.type == DioExceptionType.connectionTimeout) {
+        return 'No se pudo conectar al servidor. Verifica tu red.';
+      }
+    }
+    return 'Ocurrió un error. Intenta de nuevo.';
+  }
+
+  void _handleLogin() {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -34,23 +47,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
 
-    await ref.read(authProvider.notifier).login(email, password);
-
-    if (!mounted) return;
-    final authState = ref.read(authProvider);
-    if (authState.hasError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Credenciales incorrectas. Verifica e intenta de nuevo.'),
-          backgroundColor: AppTheme.errorColor,
-        ),
-      );
-    }
-    // GoRouter redirect handles navigation on success
+    ref.read(authProvider.notifier).login(email, password);
+    // Errors are handled by ref.listen in build()
+    // Success is handled by GoRouter redirect
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<dynamic>>(authProvider, (previous, next) {
+      if (previous?.isLoading == true && next.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_errorMessage(next.error!)),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    });
+
     final isLoading = ref.watch(authProvider).isLoading;
 
     return Scaffold(
