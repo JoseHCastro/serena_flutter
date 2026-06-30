@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../components/app_top_bar.dart';
 import '../../components/status_badge.dart';
 import '../../models/session_model.dart';
@@ -147,26 +148,71 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (session.videoUrl != null) ...[
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 18,
+                  Container(
+                    width: double.infinity,
+                    height: 120,
+                    margin: const EdgeInsets.only(bottom: AppTheme.spacingMd),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.grey.shade900, Colors.grey.shade800],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      const SizedBox(width: AppTheme.spacingSm),
-                      Expanded(
-                        child: Text(
-                          'Video subido correctamente',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: Colors.green.shade700),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Positioned(
+                          left: 16,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Video de la sesión',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                'Toca para reproducir',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                        Positioned(
+                          right: 16,
+                          child: CircleAvatar(
+                            radius: 24,
+                            backgroundColor: AppTheme.primaryColor,
+                            child: const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                        ),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _launchVideo(session.videoUrl!),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            child: const SizedBox(
+                              width: double.infinity,
+                              height: 120,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: AppTheme.spacingMd),
                 ],
                 if (_uploading) ...[
                   const Text('Subiendo video...'),
@@ -277,6 +323,17 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
           ),
       ],
     );
+  }
+
+  Future<void> _launchVideo(String url) async {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se pudo abrir el reproductor de video.')),
+        );
+      }
+    }
   }
 
   Future<void> _startSession() async {

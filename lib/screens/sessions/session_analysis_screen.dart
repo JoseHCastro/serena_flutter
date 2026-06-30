@@ -64,6 +64,7 @@ class SessionAnalysisScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (snapshots.isNotEmpty) ...[
+                      _buildFramesSection(context, snapshots),
                       EmotionTimelineChart(snapshots: snapshots),
                       const SizedBox(height: AppTheme.spacingXl),
                       EmotionAverageChart(snapshots: snapshots),
@@ -82,6 +83,123 @@ class SessionAnalysisScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildFramesSection(BuildContext context, List<EmotionalSnapshot> snapshots) {
+    final frames = snapshots.where((s) => s.frameUrl != null).toList();
+    if (frames.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Capturas de expresiones (Fotogramas)',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: AppTheme.spacingMd),
+        SizedBox(
+          height: 160,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: frames.length,
+            itemBuilder: (context, index) {
+              final f = frames[index];
+              return Container(
+                width: 120,
+                margin: const EdgeInsets.only(right: AppTheme.spacingMd),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceColor,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  border: Border.all(color: AppTheme.borderColor),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: Image.network(
+                                f.frameUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => const Center(
+                                  child: Icon(Icons.broken_image,
+                                      color: AppTheme.textMuted, size: 24),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 4,
+                              right: 4,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withAlpha(160),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '${f.timestampOffset.toStringAsFixed(1)}s',
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(AppTheme.spacingSm),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _emotionLabel(f.dominantEmotion),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${(f.confidence * 100).toStringAsFixed(0)}% conf.',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: AppTheme.spacingXl),
+      ],
+    );
+  }
+
+  String _emotionLabel(String emotion) {
+    const labels = {
+      'happiness': 'Felicidad',
+      'sadness': 'Tristeza',
+      'anger': 'Ira',
+      'fear': 'Miedo',
+      'disgust': 'Asco',
+      'surprise': 'Sorpresa',
+      'neutral': 'Neutral',
+    };
+    return labels[emotion.toLowerCase()] ?? emotion;
   }
 
   Future<void> _downloadPdf(BuildContext context, WidgetRef ref) async {

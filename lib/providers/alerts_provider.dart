@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/alert_model.dart';
 import '../services/alert_service.dart';
@@ -8,8 +9,22 @@ final alertServiceProvider = Provider<AlertService>(
 );
 
 class AlertsNotifier extends AsyncNotifier<List<AlertModel>> {
+  Timer? _refreshTimer;
+
   @override
   Future<List<AlertModel>> build() async {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (ref.read(authProvider).valueOrNull != null) {
+        _fetchAlerts().then((alerts) {
+          state = AsyncValue.data(alerts);
+        }).catchError((_) {});
+      }
+    });
+
+    ref.onDispose(() {
+      _refreshTimer?.cancel();
+    });
+
     return _fetchAlerts();
   }
 

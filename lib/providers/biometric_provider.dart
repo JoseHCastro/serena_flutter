@@ -45,3 +45,16 @@ final biometricAnalysisProvider = AsyncNotifierProviderFamily<
     BiometricAnalysisNotifier, BiometricJobModel?, String>(
   BiometricAnalysisNotifier.new,
 );
+
+final patientEvolutionProvider =
+    FutureProvider.family<ComparativeReport, String>((ref, patientId) {
+  return ref.read(biometricServiceProvider).getPatientEvolution(patientId);
+});
+
+final sessionComparisonProvider =
+    FutureProvider.family<ComparativeReport, String>((ref, arg) {
+  final parts = arg.split('_');
+  final patientId = parts[0];
+  final sessionIds = parts[1].split(',');
+  return ref.read(biometricServiceProvider).getComparisonReport(patientId, sessionIds);
+});

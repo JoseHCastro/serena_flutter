@@ -1,9 +1,10 @@
 class ApiConstants {
-  // Backend host:
-  //  - Android emulator:   http://10.0.2.2:8000  ← activo
-  //  - Web/Desktop local:  http://localhost:8000
-  //  - Physical device:    http://<your-lan-ip>:8000
-  static const String baseUrl = 'https://serena-back.duckdns.org/api/v1';
+  // Configuración de Host de Backend local:
+  //  - Dispositivo Físico (Wi-Fi):  http://192.168.0.16:8000/api/v1  ← ACTIVO (Detectado)
+  //  - Emulador de Android:         http://10.0.2.2:8000/api/v1
+  //  - Web / Desktop local / iOS:   http://localhost:8000/api/v1
+  //  - Producción en la nube:       https://serena-back.duckdns.org/api/v1
+  static const String baseUrl = 'http://192.168.0.16:8000/api/v1';
 
   // Auth
   static const String login = '/auth/login';
@@ -14,11 +15,11 @@ class ApiConstants {
   static const String me = '/users/me';
 
   // Patients
-  static const String patients = '/patients';
+  static const String patients = '/patients/';
   static String patient(String id) => '/patients/$id';
 
   // Sessions
-  static const String sessions = '/sessions';
+  static const String sessions = '/sessions/';
   static String session(String id) => '/sessions/$id';
   static String startSession(String id) => '/sessions/$id/start';
   static String endSession(String id) => '/sessions/$id/end';
@@ -36,6 +37,8 @@ class ApiConstants {
       '/biometric/sessions/$sessionId/timeline';
   static String biometricCompare(String patientId) =>
       '/biometric/patients/$patientId/compare';
+  static String biometricEvolution(String patientId) =>
+      '/biometric/patients/$patientId/evolution';
   static String biometricMicroexpressions(String sessionId) =>
       '/biometric/sessions/$sessionId/microexpressions';
 

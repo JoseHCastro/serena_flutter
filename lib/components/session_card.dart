@@ -54,6 +54,8 @@ class SessionCard extends StatelessWidget {
                     Text(
                       patientName,
                       style: Theme.of(context).textTheme.titleSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Row(
@@ -64,9 +66,13 @@ class SessionCard extends StatelessWidget {
                           color: AppTheme.textMuted,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          dateStr,
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Expanded(
+                          child: Text(
+                            dateStr,
+                            style: Theme.of(context).textTheme.bodySmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),

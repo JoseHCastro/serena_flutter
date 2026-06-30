@@ -41,4 +41,19 @@ class BiometricService {
         .toList();
   }
 
+  Future<ComparativeReport> getPatientEvolution(String patientId) async {
+    final response = await _dio.get(ApiConstants.biometricEvolution(patientId));
+    return ComparativeReport.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<ComparativeReport> getComparisonReport(
+      String patientId, List<String> sessionIds) async {
+    final response = await _dio.get(
+      ApiConstants.biometricCompare(patientId),
+      queryParameters: {
+        'session_ids': sessionIds,
+      },
+    );
+    return ComparativeReport.fromJson(response.data as Map<String, dynamic>);
+  }
 }

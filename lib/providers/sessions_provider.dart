@@ -32,6 +32,23 @@ class SessionsNotifier extends AsyncNotifier<List<SessionModel>> {
     state = await AsyncValue.guard(() => _fetchSessions(status: status));
   }
 
+  Future<SessionModel> scheduleSession({
+    required String patientId,
+    required String scheduledAt,
+    String? notes,
+  }) async {
+    final service = ref.read(sessionServiceProvider);
+    final newSession = await service.scheduleSession(
+      patientId: patientId,
+      scheduledAt: scheduledAt,
+      notes: notes,
+    );
+    state = AsyncData(
+      [newSession, ...state.valueOrNull ?? []],
+    );
+    return newSession;
+  }
+
   Future<SessionModel> startSession(String sessionId) async {
     final service = ref.read(sessionServiceProvider);
     final updated = await service.startSession(sessionId);

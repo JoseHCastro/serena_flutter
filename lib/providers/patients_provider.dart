@@ -30,6 +30,21 @@ class PatientsNotifier extends AsyncNotifier<List<PatientModel>> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => _fetchPatients(search: search));
   }
+
+  Future<PatientModel> updatePatient(String id, Map<String, dynamic> data) async {
+    final service = ref.read(patientServiceProvider);
+    final updated = await service.updatePatient(id, data);
+    ref.invalidate(patientDetailProvider(id));
+    await refresh();
+    return updated;
+  }
+
+  Future<PatientModel> createPatient(Map<String, dynamic> data) async {
+    final service = ref.read(patientServiceProvider);
+    final created = await service.createPatient(data);
+    await refresh();
+    return created;
+  }
 }
 
 final patientsProvider =

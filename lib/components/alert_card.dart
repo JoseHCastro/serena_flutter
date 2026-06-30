@@ -59,7 +59,7 @@ class AlertCard extends StatelessWidget {
               ),
             const SizedBox(height: 4),
             Text(
-              alert.message,
+              _translateMessage(alert.message),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             if (!alert.isAcknowledged && onAcknowledge != null) ...[
@@ -124,5 +124,39 @@ class AlertCard extends StatelessWidget {
     } catch (_) {
       return iso;
     }
+  }
+
+  String _translateMessage(String message) {
+    return message
+        .replaceAll('ANXIETY', 'ANSIEDAD')
+        .replaceAll('STRESS', 'ESTRÉS')
+        .replaceAll('High anxiety detected', 'Alta ansiedad detectada')
+        .replaceAll('High stress detected', 'Alto estrés detectado')
+        .replaceAll('Critical emotion', 'Emoción crítica')
+        .replaceAll('detected at confidence', 'detectada con confianza')
+        .replaceAll('Fear', 'Miedo')
+        .replaceAll('Sadness', 'Tristeza')
+        .replaceAll('Anger', 'Ira')
+        .replaceAll('Happiness', 'Felicidad')
+        .replaceAll('Disgust', 'Asco')
+        .replaceAll('Surprise', 'Sorpresa')
+        .replaceAll('Neutral', 'Neutral')
+        .replaceAll('SADNESS', 'TRISTEZA')
+        .replaceAll('NEUTRAL', 'NEUTRAL')
+        .replaceAll('ANGER', 'IRA')
+        .replaceAll('FEAR', 'MIEDO')
+        .replaceAll('DISGUST', 'ASCO')
+        .replaceAll('HAPPINESS', 'FELICIDAD')
+        .replaceAll('SURPRISE', 'SORPRESA')
+        .replaceAll('anger', 'ira')
+        .replaceAll('disgust', 'asco')
+        .replaceAll('fear', 'miedo')
+        .replaceAll('happiness', 'felicidad')
+        .replaceAll('neutral', 'neutral')
+        .replaceAll('sadness', 'tristeza')
+        .replaceAll('surprise', 'sorpresa')
+        .replaceAll('at t=', 'a los ')
+        .replaceAll('Cambio emocional abrupto de', 'Cambio emocional abrupto de')
+        .replaceAll('detectada con confianza', 'detectada con confianza');
   }
 }

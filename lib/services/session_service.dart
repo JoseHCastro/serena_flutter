@@ -19,8 +19,8 @@ class SessionService {
       queryParameters: {
         'page': page,
         'page_size': pageSize,
-        'patient_id': ?patientId,
-        'status': ?status,
+        if (patientId != null) 'patient_id': patientId,
+        if (status != null) 'status': status,
       },
     );
     return PaginatedSessions.fromJson(response.data as Map<String, dynamic>);
@@ -28,6 +28,22 @@ class SessionService {
 
   Future<SessionModel> getSession(String id) async {
     final response = await _dio.get(ApiConstants.session(id));
+    return SessionModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<SessionModel> scheduleSession({
+    required String patientId,
+    required String scheduledAt,
+    String? notes,
+  }) async {
+    final response = await _dio.post(
+      ApiConstants.sessions,
+      data: {
+        'patient_id': patientId,
+        'scheduled_at': scheduledAt,
+        if (notes != null) 'notes': notes,
+      },
+    );
     return SessionModel.fromJson(response.data as Map<String, dynamic>);
   }
 

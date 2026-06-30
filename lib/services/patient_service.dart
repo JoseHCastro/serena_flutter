@@ -29,4 +29,14 @@ class PatientService {
     final response = await _dio.get(ApiConstants.patient(id));
     return PatientModel.fromJson(response.data as Map<String, dynamic>);
   }
+
+  Future<PatientModel> updatePatient(String id, Map<String, dynamic> data) async {
+    final response = await _dio.patch(ApiConstants.patient(id), data: data);
+    return PatientModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<PatientModel> createPatient(Map<String, dynamic> data) async {
+    final response = await _dio.post(ApiConstants.patients, data: data);
+    return PatientModel.fromJson(response.data as Map<String, dynamic>);
+  }
 }
